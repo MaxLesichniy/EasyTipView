@@ -111,15 +111,9 @@ public extension EasyTipView {
         
         if let customView = self.customView {
             addSubview(customView)
-//            let widthConstraint = NSLayoutConstraint(item: customView, attribute: .width, relatedBy: .lessThanOrEqual, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: preferences.positioning.maxWidth)
-//            let heightConstraint = NSLayoutConstraint(item: customView, attribute: .height, relatedBy: .greaterThanOrEqual, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 44)
-//            addConstraints([widthConstraint, heightConstraint])
-//            customView.layoutIfNeeded()
-            customView.sizeToFit()
-//            customViewSize = customView.frame.size
         }
         
-        let superview = superview! //?? UIApplication.shared.windows.first!
+        let superview = superview!
         
         let initialTransform = preferences.animating.showInitialTransform
         let finalTransform = preferences.animating.showFinalTransform
@@ -133,10 +127,6 @@ public extension EasyTipView {
         transform = initialTransform
         alpha = initialAlpha
         
-        let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap))
-        tap.delegate = self
-        addGestureRecognizer(tap)
-        
         superview.addSubview(self)
         
         let animations : () -> () = {
@@ -146,7 +136,7 @@ public extension EasyTipView {
         
         if animated {
             UIView.animate(withDuration: preferences.animating.showDuration, delay: 0, usingSpringWithDamping: damping, initialSpringVelocity: velocity, options: [.curveEaseInOut], animations: animations, completion: nil)
-        }else{
+        } else {
             animations()
         }
     }
@@ -257,9 +247,7 @@ open class EasyTipView: UIView {
     }
     
     override open var description: String {
-        
         let t = "'\(String(reflecting: type(of: self)))'".components(separatedBy: ".").last!
-        
         return "<< \(t) with text : '\(text)' >>"
     }
     
@@ -273,10 +261,7 @@ open class EasyTipView: UIView {
     
     // MARK: - Lazy variables -
     
-    fileprivate lazy var textSize: CGSize = {
-        
-        [unowned self] in
-        
+    fileprivate lazy var textSize: CGSize = { [unowned self] in
         var attributes = [NSAttributedStringKey.font : self.preferences.drawing.font]
         
         var textSize = self.text.boundingRect(with: CGSize(width: self.preferences.positioning.maxWidth, height: CGFloat.greatestFiniteMagnitude), options: NSStringDrawingOptions.usesLineFragmentOrigin, attributes: attributes, context: nil).size
@@ -289,11 +274,9 @@ open class EasyTipView: UIView {
         }
         
         return textSize
-        }()
+    }()
     
-//    fileprivate var customViewSize: CGSize = .zero
-    
-    fileprivate lazy var contentSize: CGSize = { [unowned self] in
+    fileprivate var contentSize: CGSize {
         if let customView = self.customView {
             customView.sizeToFit()
             return CGSize(width: customView.frame.width + self.preferences.positioning.textHInset * 2,
@@ -301,7 +284,7 @@ open class EasyTipView: UIView {
         } else {
             return CGSize(width: self.textSize.width + self.preferences.positioning.textHInset * 2 + self.preferences.positioning.bubbleHInset * 2, height: self.textSize.height + self.preferences.positioning.textVInset * 2 + self.preferences.positioning.bubbleVInset * 2 + self.preferences.drawing.arrowHeight)
         }
-    }()
+    }
     
     // MARK: - Static variables -
     
@@ -309,30 +292,34 @@ open class EasyTipView: UIView {
     
     // MARK:- Initializer -
     
-    public init(text: String, preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil){
-        
+    public init(text: String, preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil) {
         self.text = text
         self.customView = nil
         self.preferences = preferences
         self.delegate = delegate
         
         super.init(frame: CGRect.zero)
-        
-        self.backgroundColor = UIColor.clear
-        NotificationCenter.default.addObserver(self, selector: #selector(handleRotation), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
+        commonInit()
     }
     
-    public init(customView: UIView?, preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil){
-        
+    public init(customView: UIView?, preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil) {
         self.text = ""
         self.customView = customView
         self.preferences = preferences
         self.delegate = delegate
         
         super.init(frame: CGRect.zero)
+        commonInit()
+    }
+    
+    private func commonInit(preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil) {
+        NotificationCenter.default.addObserver(self, selector: #selector(handleRotation), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
         
         self.backgroundColor = UIColor.clear
-        NotificationCenter.default.addObserver(self, selector: #selector(handleRotation), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
+        
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        tapGestureRecognizer.delegate = self
+        self.addGestureRecognizer(tapGestureRecognizer)
     }
     
     deinit {
@@ -349,6 +336,7 @@ open class EasyTipView: UIView {
     public func arrangeInSuperView() {
         guard let superview = self.superview else { return }
         arrange(withinSuperview: superview)
+        setNeedsDisplay()
     }
     
     // MARK: - Rotation support -
@@ -368,6 +356,8 @@ open class EasyTipView: UIView {
     fileprivate func computeFrame(arrowPosition position: ArrowPosition, refViewFrame: CGRect, superviewFrame: CGRect) -> CGRect {
         var xOrigin: CGFloat = 0
         var yOrigin: CGFloat = 0
+        
+        let contentSize = self.contentSize
         
         switch position {
         case .top, .any:
@@ -390,19 +380,19 @@ open class EasyTipView: UIView {
     }
     
     fileprivate func adjustFrame(_ frame: inout CGRect, forSuperviewFrame superviewFrame: CGRect) {
-        
+        let superviewLayoutMargins = superview?.layoutMargins ?? .zero
         // adjust horizontally
-        if frame.x < 0 {
-            frame.x =  0
-        } else if frame.maxX > superviewFrame.width {
-            frame.x = superviewFrame.width - frame.width
+        if frame.x < superviewLayoutMargins.left {
+            frame.x = superviewLayoutMargins.left
+        } else if frame.maxX > superviewFrame.width - superviewLayoutMargins.right {
+            frame.x = superviewFrame.width - frame.width - superviewLayoutMargins.right
         }
         
         //adjust vertically
-        if frame.y < 0 {
-            frame.y = 0
-        } else if frame.maxY > superviewFrame.maxY {
-            frame.y = superviewFrame.height - frame.height
+        if frame.y < superviewLayoutMargins.top {
+            frame.y = superviewLayoutMargins.top
+        } else if frame.maxY > superviewFrame.maxY - superviewLayoutMargins.bottom {
+            frame.y = superviewFrame.height - frame.height - superviewLayoutMargins.bottom
         }
     }
     
@@ -441,6 +431,8 @@ open class EasyTipView: UIView {
                 }
             }
         }
+        
+        let contentSize = self.contentSize
         
         var arrowTipXOrigin: CGFloat
         
