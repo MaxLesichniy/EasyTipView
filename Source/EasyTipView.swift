@@ -150,7 +150,7 @@ public extension EasyTipView {
         
         let damping = preferences.animating.springDamping
         let velocity = preferences.animating.springVelocity
-        
+        isDismissing = true
         UIView.animate(withDuration: preferences.animating.dismissDuration, delay: 0, usingSpringWithDamping: damping, initialSpringVelocity: velocity, options: [.curveEaseInOut], animations: {
             self.transform = self.preferences.animating.dismissTransform
             self.alpha = self.preferences.animating.dismissFinalAlpha
@@ -159,6 +159,7 @@ public extension EasyTipView {
             self.delegate?.easyTipViewDidDismiss(self)
             self.removeFromSuperview()
             self.transform = CGAffineTransform.identity
+            self.isDismissing = false
         }
     }
 }
@@ -254,6 +255,7 @@ open class EasyTipView: UIView {
     fileprivate weak var presentingView: UIView?
     fileprivate weak var delegate: EasyTipViewDelegate?
     fileprivate var arrowTip = CGPoint.zero
+    fileprivate var isDismissing: Bool = false
     fileprivate(set) open var preferences: Preferences
     open let text: String
     
@@ -334,7 +336,7 @@ open class EasyTipView: UIView {
     }
     
     public func arrangeInSuperView() {
-        guard let superview = self.superview else { return }
+        guard let superview = self.superview, isDismissing == false else { return }
         arrange(withinSuperview: superview)
         setNeedsDisplay()
     }
