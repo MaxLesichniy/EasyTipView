@@ -113,7 +113,7 @@ public extension EasyTipView {
             addSubview(customView)
         }
         
-        let superview = superview!
+        guard let superview = superview ?? view.window else { return }
         
         let initialTransform = preferences.animating.showInitialTransform
         let finalTransform = preferences.animating.showFinalTransform
