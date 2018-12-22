@@ -264,7 +264,7 @@ open class EasyTipView: UIView {
     // MARK: - Lazy variables -
     
     fileprivate lazy var textSize: CGSize = { [unowned self] in
-        var attributes = [NSAttributedStringKey.font : self.preferences.drawing.font]
+        var attributes = [NSAttributedString.Key.font : self.preferences.drawing.font]
         
         var textSize = self.text.boundingRect(with: CGSize(width: self.preferences.positioning.maxWidth, height: CGFloat.greatestFiniteMagnitude), options: NSStringDrawingOptions.usesLineFragmentOrigin, attributes: attributes, context: nil).size
         
@@ -315,7 +315,7 @@ open class EasyTipView: UIView {
     }
     
     private func commonInit(preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil) {
-        NotificationCenter.default.addObserver(self, selector: #selector(handleRotation), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleRotation), name: UIDevice.orientationDidChangeNotification, object: nil)
         
         self.backgroundColor = UIColor.clear
         
