@@ -44,7 +44,7 @@ public extension EasyTipView {
      - parameter preferences: The preferences which will configure the EasyTipView.
      - parameter delegate:    The delegate.
      */
-    public class func show(animated: Bool = true, forItem item: UIBarItem, withinSuperview superview: UIView? = nil, text: String, preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil){
+    class func show(animated: Bool = true, forItem item: UIBarItem, withinSuperview superview: UIView? = nil, text: String, preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil){
         
         if let view = item.view {
             show(animated: animated, forView: view, withinSuperview: superview, text: text, preferences: preferences, delegate: delegate)
@@ -61,7 +61,7 @@ public extension EasyTipView {
      - parameter preferences: The preferences which will configure the EasyTipView.
      - parameter delegate:    The delegate.
      */
-    public class func show(animated: Bool = true, forView view: UIView, withinSuperview superview: UIView? = nil, text: String, preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil){
+    class func show(animated: Bool = true, forView view: UIView, withinSuperview superview: UIView? = nil, text: String, preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil){
         
         let ev = EasyTipView(text: text, preferences: preferences, delegate: delegate)
         ev.show(animated: animated, forView: view, withinSuperview: superview)
@@ -77,7 +77,7 @@ public extension EasyTipView {
      - parameter preferences: The preferences which will configure the EasyTipView.
      - parameter delegate:    The delegate.
      */
-    public class func show(animated: Bool = true, forView view: UIView, withinSuperview superview: UIView? = nil, customView: UIView, preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil){
+    class func show(animated: Bool = true, forView view: UIView, withinSuperview superview: UIView? = nil, customView: UIView, preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil){
         
         let ev = EasyTipView(customView: customView, preferences: preferences, delegate: delegate)
         ev.show(animated: animated, forView: view, withinSuperview: superview)
@@ -92,7 +92,7 @@ public extension EasyTipView {
      - parameter item:      The UIBarButtonItem or UITabBarItem instance which the EasyTipView will be pointing to.
      - parameter superview: A view which is part of the UIBarButtonItem instances superview hierarchy. Ignore this parameter in order to display the EasyTipView within the main window.
      */
-    public func show(animated: Bool = true, forItem item: UIBarItem, withinSuperView superview: UIView? = nil) {
+    func show(animated: Bool = true, forItem item: UIBarItem, withinSuperView superview: UIView? = nil) {
         if let view = item.view {
             show(animated: animated, forView: view, withinSuperview: superview)
         }
@@ -105,7 +105,7 @@ public extension EasyTipView {
      - parameter view:      The UIView instance which the EasyTipView will be pointing to.
      - parameter superview: A view which is part of the UIView instances superview hierarchy. Ignore this parameter in order to display the EasyTipView within the main window.
      */
-    public func show(animated: Bool = true, forView view: UIView, withinSuperview superview: UIView? = nil) {
+    func show(animated: Bool = true, forView view: UIView, withinSuperview superview: UIView? = nil) {
         
         precondition(superview == nil || view.hasSuperview(superview!), "The supplied superview <\(superview!)> is not a direct nor an indirect superview of the supplied reference view <\(view)>. The superview passed to this method should be a direct or an indirect superview of the reference view. To display the tooltip within the main window, ignore the superview parameter.")
         
@@ -146,7 +146,7 @@ public extension EasyTipView {
      
      - parameter completion: Completion block to be executed after the EasyTipView is dismissed.
      */
-    public func dismiss(withCompletion completion: (() -> ())? = nil){
+    func dismiss(withCompletion completion: (() -> ())? = nil){
         
         let damping = preferences.animating.springDamping
         let velocity = preferences.animating.springVelocity
@@ -192,24 +192,25 @@ open class EasyTipView: UIView {
     public struct Preferences {
         
         public struct Drawing {
-            public var cornerRadius        = CGFloat(5)
-            public var arrowHeight         = CGFloat(5)
-            public var arrowWidth          = CGFloat(10)
-            public var foregroundColor     = UIColor.white
-            public var backgroundColor     = UIColor.red
-            public var arrowPosition       = ArrowPosition.any
-            public var textAlignment       = NSTextAlignment.center
-            public var borderWidth         = CGFloat(0)
-            public var borderColor         = UIColor.clear
-            public var font                = UIFont.systemFont(ofSize: 15)
+            public var cornerRadius: CGFloat = 5
+            public var arrowHeight: CGFloat = 5
+            public var arrowWidth: CGFloat = 10
+            public var foregroundColor: UIColor = .white
+            public var backgroundColor: UIColor = .red
+            public var arrowPosition: ArrowPosition = .any
+            public var textAlignment: NSTextAlignment = .center
+            public var borderWidth: CGFloat = 0
+            public var borderColor: UIColor = .clear
+            public var font: UIFont = .systemFont(ofSize: 15)
+            public var gradient: CGGradient? = nil
         }
         
         public struct Positioning {
-            public var bubbleHInset         = CGFloat(1)
-            public var bubbleVInset         = CGFloat(1)
-            public var textHInset           = CGFloat(10)
-            public var textVInset           = CGFloat(10)
-            public var maxWidth             = CGFloat(200)
+            public var bubbleHInset: CGFloat = 1
+            public var bubbleVInset: CGFloat = 1
+            public var textHInset: CGFloat = 10
+            public var textVInset: CGFloat = 10
+            public var maxWidth: CGFloat = 200
         }
         
         public struct Animating {
@@ -257,7 +258,7 @@ open class EasyTipView: UIView {
     fileprivate var arrowTip = CGPoint.zero
     fileprivate var isDismissing: Bool = false
     fileprivate(set) open var preferences: Preferences
-    open let text: String
+    public let text: String
     
     open fileprivate(set) var customView: UIView?
     
@@ -290,7 +291,7 @@ open class EasyTipView: UIView {
     
     // MARK: - Static variables -
     
-    open static var globalPreferences = Preferences()
+    public static var globalPreferences = Preferences()
     
     // MARK:- Initializer -
     
@@ -546,8 +547,15 @@ open class EasyTipView: UIView {
     }
     
     fileprivate func paintBubble(_ context: CGContext) {
-        context.setFillColor(preferences.drawing.backgroundColor.cgColor)
-        context.fill(bounds)
+        if let gradient = preferences.drawing.gradient {
+//            context.saveGState()
+//            context.clip()
+            context.drawLinearGradient(gradient, start: CGPoint(x: bounds.width, y: 0), end: CGPoint(x: 0, y: bounds.height), options: [.drawsAfterEndLocation, .drawsBeforeStartLocation])
+//            context.restoreGState()
+        } else {
+            context.setFillColor(preferences.drawing.backgroundColor.cgColor)
+            context.fill(bounds)
+        }
     }
     
     fileprivate func drawBorder(_ borderPath: CGPath, context: CGContext) {
