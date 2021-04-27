@@ -23,20 +23,20 @@ public class EasyTipViewManager: EasyTipViewDelegate {
     }
     
     @discardableResult
-    public func show(customView: UIView, forView view: UIView, withinSuperview superview: UIView? = nil, hideAfter: TimeInterval? = 3,  animated: Bool = true, hideOthers: Bool = true, preferences p: EasyTipView.Preferences? = nil, dismissClosure: DismissClosure? = nil) -> EasyTipView {
+    public func show(_ customView: UIView, for view: UIView, within superview: UIView? = nil, hideAfter: TimeInterval? = 3, animated: Bool = true, hideOthers: Bool = true, preferences p: EasyTipView.Preferences? = nil, dismissClosure: DismissClosure? = nil) -> EasyTipView {
         let tipView = EasyTipView(customView: customView, preferences: p ?? self.preferences, delegate: self)
-        show(tipView: tipView, forView: view, withinSuperview: superview, hideAfter: hideAfter, animated: animated, hideOthers: hideOthers, dismissClosure: dismissClosure)
+        show(tipView, for: view, within: superview, hideAfter: hideAfter, animated: animated, hideOthers: hideOthers, dismissClosure: dismissClosure)
         return tipView
     }
     
     @discardableResult
-    public func show(text: String, forView view: UIView, withinSuperview superview: UIView? = nil, hideAfter: TimeInterval? = 3,  animated: Bool = true, hideOthers: Bool = true, preferences p: EasyTipView.Preferences? = nil, dismissClosure: DismissClosure? = nil) -> EasyTipView {
+    public func show(_ text: String, for view: UIView, within superview: UIView? = nil, hideAfter: TimeInterval? = 3, animated: Bool = true, hideOthers: Bool = true, preferences p: EasyTipView.Preferences? = nil, dismissClosure: DismissClosure? = nil) -> EasyTipView {
         let tipView = EasyTipView(text: text, preferences: p ?? self.preferences, delegate: self)
-        show(tipView: tipView, forView: view, withinSuperview: superview, hideAfter: hideAfter, animated: animated, hideOthers: hideOthers, dismissClosure: dismissClosure)
+        show(tipView, for: view, within: superview, hideAfter: hideAfter, animated: animated, hideOthers: hideOthers, dismissClosure: dismissClosure)
         return tipView
     }
     
-    private func show(tipView: EasyTipView, forView view: UIView, withinSuperview superview: UIView? = nil, hideAfter: TimeInterval? = 3,  animated: Bool = true, hideOthers: Bool = true, dismissClosure: DismissClosure? = nil) {
+    private func show(_ tipView: EasyTipView, for view: UIView, within superview: UIView? = nil, hideAfter: TimeInterval? = 3, animated: Bool = true, hideOthers: Bool = true, dismissClosure: DismissClosure? = nil) {
         
         var timer: Timer? = nil
         if let hideAfter = hideAfter {
@@ -86,8 +86,8 @@ public class EasyTipViewManager: EasyTipViewDelegate {
 
 extension EasyTipViewManager {
     
-    public class  func show( text:  String, forView view: UIView, withinSuperview superview: UIView? = nil, hideAfter: TimeInterval? = 3,  animated: Bool = true, hideOthers: Bool = true, preferences p: EasyTipView.Preferences? = nil, dismissClosure: DismissClosure? = nil) -> EasyTipView {
-        return EasyTipViewManager.default.show(text: text, forView: view, withinSuperview: superview, hideAfter: hideAfter, animated: animated, hideOthers: hideOthers, preferences: p, dismissClosure: dismissClosure)
+    public class  func show(_ text: String, for view: UIView, within superview: UIView? = nil, hideAfter: TimeInterval? = 3, animated: Bool = true, hideOthers: Bool = true, preferences p: EasyTipView.Preferences? = nil, dismissClosure: DismissClosure? = nil) -> EasyTipView {
+        return EasyTipViewManager.default.show(text, for: view, within: superview, hideAfter: hideAfter, animated: animated, hideOthers: hideOthers, preferences: p, dismissClosure: dismissClosure)
     }
     
 }

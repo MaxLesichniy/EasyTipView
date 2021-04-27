@@ -31,7 +31,7 @@ extension UIView {
         if let sview = view.superview {
             if sview === superview {
                 return true
-            }else{
+            } else {
                 return viewHasSuperview(sview, superview: superview)
             }
         }else{
@@ -66,4 +66,5 @@ extension CGRect {
     var center: CGPoint {
         return CGPoint(x: self.x + self.width / 2, y: self.y + self.height / 2)
     }
+    
 }
